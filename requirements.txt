@@ -1,0 +1,5 @@
+Flask
+lxml
+slugify
+datetime
+timedelta
