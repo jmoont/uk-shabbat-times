@@ -27,8 +27,6 @@ def festivaltimes():
 
 def get_post_dates(english_date, num):
 
-    if english_date == "":
-        return ["", ""]
     date_obj = datetime.strptime(english_date, "%d %b %Y").date()
     post_date = date_obj - timedelta(days=num)
     expiry_date = date_obj
@@ -76,7 +74,7 @@ def get_data_shabbat(url):
         var = row.get_text()
         var = var.split('\n')
         tab_row = {}
-        if var[1].strip() != "" and var[1].strip() != "Parasha": 
+        if var[1].strip() != "" and var[2].strip() != "" and var[1].strip() != "Parasha": 
             hebrew_date = get_hebrew_date(var[2].strip())
             post_dates = get_post_dates(var[2].strip(), 6)
             tab_row["Parasha"] = var[1].strip()
