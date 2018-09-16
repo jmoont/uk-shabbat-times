@@ -1,1 +1,1 @@
-worker: python scrape.py
+web: python scrape.py runserver 0.0.0.0:$PORT
