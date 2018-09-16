@@ -14,8 +14,7 @@ festivaltimespage = 'https://www.theus.org.uk/article/festival-fast-times'
 
 @app.route('/')
 def hello():
-    return 'Shabbat Times Service'
-
+    return '<h2>UK Shabbat Times - theus.org.uk</h2><ul><li><a href="/shabbat_times">Shabbat Times JSON</a></li><li><a href="/festival_times">Festival Times JSON</a></li></ul>'
 
 @app.route('/shabbat_times')
 def shabbattimes():
@@ -101,33 +100,28 @@ def get_data_festivals(url):
 
     return table.get_text()
 
-    # tab = []
-    # for row in table[2:]:
-    #     for col in row:
-    #         var = col.text_content()
-    #         var = var.strip()
-    #         var = var.split('\n')
-    #         if len(var) > 3:
-    #             tab_row = {}
-    #             hebrew_date = get_hebrew_date(var[3].strip())
-    #             post_dates = get_post_dates(var[3].strip(), 3)
-    #             tab_row["Festival"] = var[0].strip()
-    #             tab_row["PostDate"] = post_dates[0]
-    #             tab_row["ExpiryDate"] = post_dates[1]
-    #             tab_row["StartDate"] = var[1].strip()
-    #             tab_row["StartTime"] = var[2].strip()
-    #             tab_row["EndDate"] = var[3].strip()
-    #             tab_row["EndTime"] = var[4].strip()
-    #             tab_row["Title"] = "Shabbat " + var[1].strip()
-    #             tab_row["Slug"] = slugify("Shabbat " + var[1].strip())
-    #             tab_row["HebrewDate_EN"] = hebrew_date[0]
-    #             tab_row["HebrewDate"] = hebrew_date[1]
-    #             tab_row["EnglishDate"] = get_english_date(
-    #                 var[1].strip(), var[3].strip())
-    #             tab.append(tab_row)
+    tab = []
+    for row in table.find_all('tr'):
+        var = row.get_text()
+        var = var.split('\n')
+        tab_row = {}
+        if var[1].strip() != "" and var[2].strip() != "" and var[1].strip() != "Parasha": 
+            hebrew_date = get_hebrew_date(var[2].strip())
+            post_dates = get_post_dates(var[2].strip(), 6)
+            tab_row["Parasha"] = var[1].strip()
+            tab_row["PostDate"] = post_dates[0]
+            tab_row["ExpiryDate"] = post_dates[1]
+            tab_row["StartDate"] = var[2].strip()
+            tab_row["StartTime"] = var[3].strip()
+            tab_row["EndDate"] = var[4].strip()
+            tab_row["EndTime"] = var[5].strip()
+            tab_row["Title"] = "Shabbat " + var[2].strip()
+            tab_row["HebrewDate_EN"] = hebrew_date[0]
+            tab_row["HebrewDate"] = hebrew_date[1]
+            tab.append(tab_row)
 
-    # json_data = json.dumps(tab)
-    # return json_data
+    json_data = json.dumps(tab)
+    return json_data
 
 
 if __name__ == "__main__":
