@@ -1,5 +1,5 @@
 Flask
-lxml
+bs4
 slugify
 datetime
 timedelta

@@ -1,6 +1,6 @@
 #!/bin/python
 
-from lxml import html
+from bs4 import BeautifulSoup
 from flask import Flask
 from datetime import datetime, timedelta
 from slugify import slugify
@@ -27,6 +27,8 @@ def festivaltimes():
 
 def get_post_dates(english_date, num):
 
+    if english_date == "":
+        return ["", ""]
     date_obj = datetime.strptime(english_date, "%d %b %Y").date()
     post_date = date_obj - timedelta(days=num)
     expiry_date = date_obj
@@ -65,34 +67,29 @@ def get_hebrew_date(english_date):
 def get_data_shabbat(url):
 
     page = requests.get(url)
-    tree = html.fromstring(page.content)
+    tree = BeautifulSoup(page.content, 'html.parser')
 
-    table = tree.xpath('//table[@class="festival-and-fast-times"]//tbody')
+    table = tree.find("table", class_="festival-and-fast-times").tbody
 
     tab = []
-    for row in table[1:]:
-        for col in row:
-            var = col.text_content()
-            var = var.strip()
-            var = var.split('\n')
-            if len(var) == 5:
-                tab_row = {}
-                hebrew_date = get_hebrew_date(var[3].strip())
-                post_dates = get_post_dates(var[3].strip(), 6)
-                tab_row["Parsha"] = var[0].strip()
-                tab_row["PostDate"] = post_dates[0]
-                tab_row["ExpiryDate"] = post_dates[1]
-                tab_row["StartDate"] = var[1].strip()
-                tab_row["StartTime"] = var[2].strip()
-                tab_row["EndDate"] = var[3].strip()
-                tab_row["EndTime"] = var[4].strip()
-                tab_row["Title"] = "Shabbat " + var[1].strip()
-                tab_row["Slug"] = slugify("Shabbat " + var[1].strip())
-                tab_row["HebrewDate_EN"] = hebrew_date[0]
-                tab_row["HebrewDate"] = hebrew_date[1]
-                tab_row["EnglishDate"] = get_english_date(
-                    var[1].strip(), var[3].strip())
-                tab.append(tab_row)
+    for row in table.find_all('tr'):
+        var = row.get_text()
+        var = var.split('\n')
+        tab_row = {}
+        if var[1].strip() != "" and var[1].strip() != "Parasha": 
+            hebrew_date = get_hebrew_date(var[2].strip())
+            post_dates = get_post_dates(var[2].strip(), 6)
+            tab_row["Parasha"] = var[1].strip()
+            tab_row["PostDate"] = post_dates[0]
+            tab_row["ExpiryDate"] = post_dates[1]
+            tab_row["StartDate"] = var[2].strip()
+            tab_row["StartTime"] = var[3].strip()
+            tab_row["EndDate"] = var[4].strip()
+            tab_row["EndTime"] = var[5].strip()
+            tab_row["Title"] = "Shabbat " + var[2].strip()
+            tab_row["HebrewDate_EN"] = hebrew_date[0]
+            tab_row["HebrewDate"] = hebrew_date[1]
+            tab.append(tab_row)
 
     json_data = json.dumps(tab)
     return json_data
@@ -100,37 +97,39 @@ def get_data_shabbat(url):
 def get_data_festivals(url):
 
     page = requests.get(url)
-    tree = html.fromstring(page.content)
+    tree = BeautifulSoup(page.content, 'html.parser')
 
-    table = tree.xpath('//table[@class="festival-and-fast-times"]//tbody')
+    table = tree.find("table", class_="festival-and-fast-times").tbody
 
-    tab = []
-    for row in table[2:]:
-        for col in row:
-            var = col.text_content()
-            var = var.strip()
-            var = var.split('\n')
-            if len(var) > 3:
-                tab_row = {}
-                hebrew_date = get_hebrew_date(var[3].strip())
-                post_dates = get_post_dates(var[3].strip(), 3)
-                tab_row["Festival"] = var[0].strip()
-                tab_row["PostDate"] = post_dates[0]
-                tab_row["ExpiryDate"] = post_dates[1]
-                tab_row["StartDate"] = var[1].strip()
-                tab_row["StartTime"] = var[2].strip()
-                tab_row["EndDate"] = var[3].strip()
-                tab_row["EndTime"] = var[4].strip()
-                tab_row["Title"] = "Shabbat " + var[1].strip()
-                tab_row["Slug"] = slugify("Shabbat " + var[1].strip())
-                tab_row["HebrewDate_EN"] = hebrew_date[0]
-                tab_row["HebrewDate"] = hebrew_date[1]
-                tab_row["EnglishDate"] = get_english_date(
-                    var[1].strip(), var[3].strip())
-                tab.append(tab_row)
+    return table.get_text()
 
-    json_data = json.dumps(tab)
-    return json_data
+    # tab = []
+    # for row in table[2:]:
+    #     for col in row:
+    #         var = col.text_content()
+    #         var = var.strip()
+    #         var = var.split('\n')
+    #         if len(var) > 3:
+    #             tab_row = {}
+    #             hebrew_date = get_hebrew_date(var[3].strip())
+    #             post_dates = get_post_dates(var[3].strip(), 3)
+    #             tab_row["Festival"] = var[0].strip()
+    #             tab_row["PostDate"] = post_dates[0]
+    #             tab_row["ExpiryDate"] = post_dates[1]
+    #             tab_row["StartDate"] = var[1].strip()
+    #             tab_row["StartTime"] = var[2].strip()
+    #             tab_row["EndDate"] = var[3].strip()
+    #             tab_row["EndTime"] = var[4].strip()
+    #             tab_row["Title"] = "Shabbat " + var[1].strip()
+    #             tab_row["Slug"] = slugify("Shabbat " + var[1].strip())
+    #             tab_row["HebrewDate_EN"] = hebrew_date[0]
+    #             tab_row["HebrewDate"] = hebrew_date[1]
+    #             tab_row["EnglishDate"] = get_english_date(
+    #                 var[1].strip(), var[3].strip())
+    #             tab.append(tab_row)
+
+    # json_data = json.dumps(tab)
+    # return json_data
 
 
 if __name__ == "__main__":
