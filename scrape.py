@@ -70,7 +70,9 @@ def get_data_shabbat(url):
     table = tree.find("table", class_="festival-and-fast-times").tbody
 
     tab = []
-    for row in table.find_all('tr'):
+    for idx, row in enumerate(table.find_all('tr')):
+        if idx > 20:
+            break
         var = row.get_text()
         var = var.split('\n')
         tab_row = {}
@@ -104,7 +106,9 @@ def get_data_festivals(url):
     return table.get_text()
 
     tab = []
-    for row in table.find_all('tr'):
+    for idx, row in enumerate(table.find_all('tr')):
+        if idx > 20:
+            break
         var = row.get_text()
         var = var.split('\n')
         tab_row = {}
