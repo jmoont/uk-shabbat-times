@@ -90,7 +90,7 @@ def get_data_shabbat(url, pageno):
             tab_row["StartTime"] = var[2].strip()
             tab_row["EndDate"] = var[3].strip()
             tab_row["EndTime"] = var[4].strip()
-            tab_row["Title"] = "Shabbat " + var[1].strip()
+            tab_row["Title"] = "Shabbat " + var[0].strip()
             tab_row["HebrewDate_EN"] = hebrew_date[0]
             tab_row["HebrewDate"] = hebrew_date[1]
             tab.append(tab_row)
