@@ -7,11 +7,12 @@ from slugify import slugify
 import requests
 import json
 import sys
+from cachetools import cached, TTLCache
 
 app = Flask(__name__)
 shabbattimespage = 'https://www.theus.org.uk/shabbattimes'
 festivaltimespage = 'https://www.theus.org.uk/article/festival-fast-times'
-
+cache = TTLCache(maxsize=10, ttl=15552000)
 
 @app.route('/')
 def hello():
@@ -62,6 +63,7 @@ def get_hebrew_date(english_date):
 
     return [str(data['hd']) + ' ' + data['hm'] + ' ' + str(data['hy']), data['hebrew']]
 
+@cached(cache)
 def get_data_shabbat(url):
 
     page = requests.get(url)
@@ -71,8 +73,6 @@ def get_data_shabbat(url):
 
     tab = []
     for idx, row in enumerate(table.find_all('tr')):
-        if idx > 20:
-            break
         var = row.get_text()
         var = var.split('\n')
         tab_row = {}
@@ -96,6 +96,7 @@ def get_data_shabbat(url):
     json_data = json.dumps(tab)
     return json_data
 
+@cached(cache)
 def get_data_festivals(url):
 
     page = requests.get(url)
@@ -107,8 +108,6 @@ def get_data_festivals(url):
 
     tab = []
     for idx, row in enumerate(table.find_all('tr')):
-        if idx > 20:
-            break
         var = row.get_text()
         var = var.split('\n')
         tab_row = {}
