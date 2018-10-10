@@ -1,1 +1,1 @@
-web: gunicorn scrape:app --timeout=600
+web: gunicorn scrape:app --timeout=1000
