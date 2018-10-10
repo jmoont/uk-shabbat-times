@@ -12,19 +12,17 @@ from cachetools import cached, TTLCache
 app = Flask(__name__)
 shabbattimespage = 'https://www.theus.org.uk/shabbattimes'
 festivaltimespage = 'https://www.theus.org.uk/article/festival-fast-times'
-cache = TTLCache(maxsize=10, ttl=15552000)
+cache = TTLCache(maxsize=1000, ttl=15552000)
+cachepage = TTLCache(maxsize=100, ttl=6000)
 
 @app.route('/')
 def hello():
-    return '<h2>UK Shabbat Times - theus.org.uk</h2><ul><li><a href="/shabbat_times">Shabbat Times JSON</a></li><li><a href="/festival_times">Festival Times JSON</a></li></ul>'
+    return '<h2>UK Shabbat Times - theus.org.uk</h2><ul><li><a href="/shabbat_times">Shabbat Times JSON</a></li></ul>'
 
-@app.route('/shabbat_times')
-def shabbattimes():
-    return get_data_shabbat(shabbattimespage)
-
-@app.route('/festival_times')
-def festivaltimes():
-    return get_data_festivals(festivaltimespage)
+@app.route('/shabbat_times/', defaults={'page': 1})
+@app.route('/shabbat_times/page/<int:page>')
+def shabbattimes(page):
+    return get_data_shabbat(shabbattimespage, page)
 
 def get_post_dates(english_date, num):
 
@@ -34,6 +32,7 @@ def get_post_dates(english_date, num):
 
     return [post_date.strftime("%Y-%m-%d"), expiry_date.strftime("%Y-%m-%d")]
 
+@cached(cache)
 def get_english_date(start_date, end_date):
 
     start_date_obj = datetime.strptime(start_date, "%d %b %Y").date()
@@ -53,6 +52,7 @@ def get_english_date(start_date, end_date):
 
     return output
 
+@cached(cache)
 def get_hebrew_date(english_date):
 
     date_obj = datetime.strptime(english_date, "%d %b %Y").date()
@@ -63,57 +63,24 @@ def get_hebrew_date(english_date):
 
     return [str(data['hd']) + ' ' + data['hm'] + ' ' + str(data['hy']), data['hebrew']]
 
-@cached(cache)
-def get_data_shabbat(url):
+@cached(cachepage)
+def get_data_shabbat(url, pageno):
 
+    itemsperpage = 10
+    startno = ((pageno - 1) * itemsperpage) + 1
     page = requests.get(url)
     tree = BeautifulSoup(page.content, 'html.parser')
 
     table = tree.find("table", class_="festival-and-fast-times").tbody
 
     tab = []
-    for idx, row in enumerate(table.find_all('tr')):
+    for idx, row in enumerate(table.find_all('tr'), -1):
         var = row.get_text()
         var = var.split('\n')
         tab_row = {}
-        print(var)
-        sys.stdout.flush()
-        if var[0].strip() != "* Mevarachim Hachodesh (Blessing the New Moon)" and var[0].strip() != "" and var[2].strip() != "" and var[2].strip() != "&nbsp;" and var[0].strip() != "Parasha": 
-            hebrew_date = get_hebrew_date(var[1].strip())
-            post_dates = get_post_dates(var[1].strip(), 6)
-            tab_row["Parasha"] = var[0].strip()
-            tab_row["PostDate"] = post_dates[0]
-            tab_row["ExpiryDate"] = post_dates[1]
-            tab_row["StartDate"] = var[1].strip()
-            tab_row["StartTime"] = var[2].strip()
-            tab_row["EndDate"] = var[3].strip()
-            tab_row["EndTime"] = var[4].strip()
-            tab_row["Title"] = "Shabbat " + var[1].strip()
-            tab_row["HebrewDate_EN"] = hebrew_date[0]
-            tab_row["HebrewDate"] = hebrew_date[1]
-            tab.append(tab_row)
-
-    json_data = json.dumps(tab)
-    return json_data
-
-@cached(cache)
-def get_data_festivals(url):
-
-    page = requests.get(url)
-    tree = BeautifulSoup(page.content, 'html.parser')
-
-    table = tree.find("table", class_="festival-and-fast-times").tbody
-
-    return table.get_text()
-
-    tab = []
-    for idx, row in enumerate(table.find_all('tr')):
-        var = row.get_text()
-        var = var.split('\n')
-        tab_row = {}
-        print(var)
-        sys.stdout.flush()
-        if var[0].strip() != "* Mevarachim Hachodesh (Blessing the New Moon)" and var[0].strip() != "" and var[1].strip() != "" and var[1].strip() != "&nbsp;" and var[0].strip() != "Parasha": 
+        if var[0].strip() != "* Mevarachim Hachodesh (Blessing the New Moon)" and idx >= startno and idx < startno + itemsperpage and var[0].strip() != "" and var[2].strip() != "" and var[2].strip() != "&nbsp;" and var[0].strip() != "Parasha": 
+            print(var)
+            sys.stdout.flush()
             hebrew_date = get_hebrew_date(var[1].strip())
             post_dates = get_post_dates(var[1].strip(), 6)
             tab_row["Parasha"] = var[0].strip()
