@@ -55,7 +55,7 @@ def get_english_date(start_date, end_date):
 @cached(cache)
 def get_hebrew_date(english_date):
 
-    date_obj = datetime.strptime(english_date, "%d %b %Y").date()
+    date_obj = datetime.strptime(english_date, "%d %b %Y").date() + timedelta(days=1)
     url = 'http://www.hebcal.com/converter/?cfg=json&gy=' + date_obj.strftime(
         "%Y") + '&gm=' + date_obj.strftime("%m") + '&gd=' + date_obj.strftime("%d") + '&g2h=1'
     page = requests.get(url)
@@ -93,6 +93,7 @@ def get_data_shabbat(url, pageno):
             tab_row["Title"] = "Shabbat " + var[0].strip(' *').title()
             tab_row["HebrewDate_EN"] = hebrew_date[0]
             tab_row["HebrewDate"] = hebrew_date[1]
+            tab_row["EnglishDate"] = get_english_date(var[1].strip(),var[3].strip())
             tab.append(tab_row)
 
     json_data = json.dumps(tab)
