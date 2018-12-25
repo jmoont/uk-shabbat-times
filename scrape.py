@@ -93,7 +93,7 @@ def get_data_shabbat(url, pageno):
             tab_row["Title"] = "Shabbat " + var[0].strip(' *').title()
             tab_row["HebrewDate_EN"] = hebrew_date[0]
             tab_row["HebrewDate"] = hebrew_date[1]
-            tab_row["EnglishDate"] = get_english_date(var[1].strip(),var[3].strip())
+            tab_row["EnglishDate"] = get_english_date(var[1].strip(),var[3].strip().replace("Fev", "Feb"))
             tab.append(tab_row)
 
     json_data = json.dumps(tab)
