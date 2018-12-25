@@ -88,7 +88,7 @@ def get_data_shabbat(url, pageno):
             tab_row["ExpiryDate"] = post_dates[1]
             tab_row["StartDate"] = var[1].strip()
             tab_row["StartTime"] = var[2].strip() + ' pm'
-            tab_row["EndDate"] = var[3].strip()
+            tab_row["EndDate"] = var[3].strip().replace("Fev", "Feb")
             tab_row["EndTime"] = var[4].strip() + ' pm'
             tab_row["Title"] = "Shabbat " + var[0].strip(' *').title()
             tab_row["HebrewDate_EN"] = hebrew_date[0]
