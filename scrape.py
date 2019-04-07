@@ -94,6 +94,7 @@ def get_data_shabbat(url, pageno):
             tab_row["HebrewDate_EN"] = hebrew_date[0]
             tab_row["HebrewDate"] = hebrew_date[1]
             tab_row["EnglishDate"] = get_english_date(var[1].strip(),var[3].strip().replace("Fev", "Feb"))
+            tab_row["NextPage"] = "https://uk-shabbat-times.herokuapp.com/shabbat_times/page/" + (page + 1)
             tab.append(tab_row)
 
     json_data = json.dumps(tab)
