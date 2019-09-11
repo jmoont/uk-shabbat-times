@@ -78,7 +78,7 @@ def get_data_shabbat(url, pageno):
         var = row.get_text()
         var = var.split('\n')
         tab_row = {}
-        if var[0].strip() != "* Mevarachim Hachodesh (Blessing the New Moon)" and not var[0].strip().startswith("Fast") and idx >= startno and idx < startno + itemsperpage and var[0].strip() != "" and var[2].strip() != "" and var[2].strip() != "&nbsp;" and var[0].strip() != "Parasha": 
+        if var[3].strip() != "" and var[0].strip() != "* Mevarachim Hachodesh (Blessing the New Moon)" and not var[0].strip().startswith("Fast") and idx >= startno and idx < startno + itemsperpage and var[0].strip() != "" and var[2].strip() != "" and var[2].strip() != "&nbsp;" and var[0].strip() != "Parasha": 
             print(var)
             sys.stdout.flush()
             hebrew_date = get_hebrew_date(var[1].strip())
