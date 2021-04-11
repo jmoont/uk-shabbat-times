@@ -67,7 +67,7 @@ def get_hebrew_date(english_date):
 def get_data_shabbat(url, pageno):
 
     itemsperpage = 10
-    startno = ((pageno - 1) * itemsperpage) + 1
+    startno = ((pageno - 1) * itemsperpage)
     page = requests.get(url)
     tree = BeautifulSoup(page.content, 'html.parser')
 
