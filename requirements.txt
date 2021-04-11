@@ -17,7 +17,7 @@ pipenv==2018.7.1
 public==1.0.3
 python-dateutil==1.5
 pytz==2018.5
-requests==2.19.1
+requests==2.20.0
 slugify==0.0.1
 timedelta==0.0.1
 urllib3==1.23
