@@ -17,7 +17,7 @@ cachepage = TTLCache(maxsize=100, ttl=6000)
 
 @app.route('/')
 def hello():
-    return '<h2>UK Shabbat Times - theus.org.uk</h2><ul><li><a href="/shabbat_times">Shabbat Times JSON</a></li></ul>'
+    return '<h2>UK Shabbat Times - theus.org.uk</h2><ul><li><a href="/shabbat_times">Shabbat Times JSON</a></li><li><a href="/shabbat_times/week/">This week - Shabbat Times JSON</a></li></ul>'
 
 @app.route('/shabbat_times/', defaults={'page': 1, 'itemsperpage': 10, 'week': false})
 @app.route('/shabbat_times/page/<int:page>', defaults={'itemsperpage': 10, 'week': false})
