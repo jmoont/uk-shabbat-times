@@ -19,18 +19,24 @@ cachepage = TTLCache(maxsize=100, ttl=6000)
 def hello():
     return '<h2>UK Shabbat Times - theus.org.uk</h2><ul><li><a href="/shabbat_times">Shabbat Times JSON</a></li></ul>'
 
-@app.route('/shabbat_times/', defaults={'page': 1})
-@app.route('/shabbat_times/page/<int:page>')
-def shabbattimes(page):
-    return get_data_shabbat(shabbattimespage, page)
+@app.route('/shabbat_times/', defaults={'page': 1, 'itemsperpage': 10, 'week': false})
+@app.route('/shabbat_times/page/<int:page>', defaults={'itemsperpage': 10, 'week': false})
+@app.route('/shabbat_times/week/', defaults={'page': 1, 'itemsperpage': 100, 'week': true})
+
+def shabbattimes(page, itemsperpage, week):
+    return get_data_shabbat(shabbattimespage, page, itemsperpage, week)
 
 def get_post_dates(english_date, num):
 
     date_obj = datetime.strptime(english_date, "%d %b %Y").date()
     post_date = date_obj - timedelta(days=num)
     expiry_date = date_obj + timedelta(days=1)
+    if post_date <= date.today() <= expiry_date:
+        is_active = true
+    else:
+        is_active = false
 
-    return [post_date.strftime("%Y-%m-%d"), expiry_date.strftime("%Y-%m-%d")]
+    return [post_date.strftime("%Y-%m-%d"), expiry_date.strftime("%Y-%m-%d"), is_active]
 
 @cached(cache)
 def get_english_date(start_date, end_date):
@@ -64,9 +70,8 @@ def get_hebrew_date(english_date):
     return [str(data['hd']) + ' ' + data['hm'] + ' ' + str(data['hy']), data['hebrew']]
 
 @cached(cachepage)
-def get_data_shabbat(url, pageno):
+def get_data_shabbat(url, pageno, itemsperpage, valid):
 
-    itemsperpage = 10
     startno = ((pageno - 1) * itemsperpage)
     page = requests.get(url)
     tree = BeautifulSoup(page.content, 'html.parser')
@@ -95,8 +100,11 @@ def get_data_shabbat(url, pageno):
             tab_row["HebrewDate"] = hebrew_date[1]
             tab_row["EnglishDate"] = get_english_date(var[1].strip(),var[3].strip().replace("Fev", "Feb"))
             tab_row["NextPage"] = "https://uk-shabbat-times.herokuapp.com/shabbat_times/page/" + str(pageno + 1)
-            tab.append(tab_row)
-
+            if post_dates[2] == true and valid == true:
+                tab.append(tab_row)
+            else if valid == false:
+                tab.append(tab_row)
+                
     json_data = json.dumps(tab)
     return json_data
 
