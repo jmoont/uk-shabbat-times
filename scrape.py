@@ -105,7 +105,7 @@ def get_data_shabbat(url, pageno, itemsperpage, valid):
                 del tab_row["NextPage"]
                 del tab_row["PostDate"]
                 del tab_row["ExpiryDate"]
-                tab.append(tab_row)
+                tab = tab_row
                 break
             elif valid == False:
                 tab.append(tab_row)
