@@ -19,9 +19,9 @@ cachepage = TTLCache(maxsize=100, ttl=6000)
 def hello():
     return '<h2>UK Shabbat Times - theus.org.uk</h2><ul><li><a href="/shabbat_times">Shabbat Times JSON</a></li><li><a href="/shabbat_times/week/">This week - Shabbat Times JSON</a></li></ul>'
 
-@app.route('/shabbat_times/', defaults={'page': 1, 'itemsperpage': 10, 'week': false})
-@app.route('/shabbat_times/page/<int:page>', defaults={'itemsperpage': 10, 'week': false})
-@app.route('/shabbat_times/week/', defaults={'page': 1, 'itemsperpage': 100, 'week': true})
+@app.route('/shabbat_times/', defaults={'page': 1, 'itemsperpage': 10, 'week': False})
+@app.route('/shabbat_times/page/<int:page>', defaults={'itemsperpage': 10, 'week': False})
+@app.route('/shabbat_times/week/', defaults={'page': 1, 'itemsperpage': 100, 'week': True})
 
 def shabbattimes(page, itemsperpage, week):
     return get_data_shabbat(shabbattimespage, page, itemsperpage, week)
@@ -32,9 +32,9 @@ def get_post_dates(english_date, num):
     post_date = date_obj - timedelta(days=num)
     expiry_date = date_obj + timedelta(days=1)
     if post_date <= date.today() <= expiry_date:
-        is_active = true
+        is_active = True
     else:
-        is_active = false
+        is_active = False
 
     return [post_date.strftime("%Y-%m-%d"), expiry_date.strftime("%Y-%m-%d"), is_active]
 
@@ -100,9 +100,9 @@ def get_data_shabbat(url, pageno, itemsperpage, valid):
             tab_row["HebrewDate"] = hebrew_date[1]
             tab_row["EnglishDate"] = get_english_date(var[1].strip(),var[3].strip().replace("Fev", "Feb"))
             tab_row["NextPage"] = "https://uk-shabbat-times.herokuapp.com/shabbat_times/page/" + str(pageno + 1)
-            if post_dates[2] == true and valid == true:
+            if post_dates[2] == True and valid == True:
                 tab.append(tab_row)
-            elif valid == false:
+            elif valid == False:
                 tab.append(tab_row)
                 
     json_data = json.dumps(tab)
