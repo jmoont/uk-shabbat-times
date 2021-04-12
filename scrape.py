@@ -103,6 +103,7 @@ def get_data_shabbat(url, pageno, itemsperpage, valid):
             tab_row["NextPage"] = "https://uk-shabbat-times.herokuapp.com/shabbat_times/page/" + str(pageno + 1)
             if post_dates[2] == True and valid == True:
                 tab.append(tab_row)
+                break
             elif valid == False:
                 tab.append(tab_row)
                 
