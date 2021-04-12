@@ -31,7 +31,8 @@ def get_post_dates(english_date, num):
     date_obj = datetime.strptime(english_date, "%d %b %Y").date()
     post_date = date_obj - timedelta(days=num)
     expiry_date = date_obj + timedelta(days=1)
-    if post_date <= date.today() <= expiry_date:
+    today = datetime.today()
+    if post_date <= today <= expiry_date:
         is_active = True
     else:
         is_active = False
